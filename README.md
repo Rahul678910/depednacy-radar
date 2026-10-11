@@ -208,7 +208,7 @@ dependency-radar/
 
 <br>
 
-## 🧪 Development
+## 🧪 Development & Testing
 
 ```bash
 # Setup
@@ -226,13 +226,125 @@ pytest tests/test_scoring.py -v
 pytest tests/test_parsers.py -v
 ```
 
-**Current test coverage:**
+### Test Results — 42/42 Passing ✅
+
+```
+============================= test session starts =============================
+platform win32 -- Python 3.14.8, pytest-9.1.1, pluggy-1.6.0
+
+tests/test_parsers.py::TestCleanVersion::test_caret_prefix PASSED        [  2%]
+tests/test_parsers.py::TestCleanVersion::test_tilde_prefix PASSED        [  4%]
+tests/test_parsers.py::TestCleanVersion::test_gte_prefix PASSED          [  7%]
+tests/test_parsers.py::TestCleanVersion::test_no_prefix PASSED           [  9%]
+tests/test_parsers.py::TestCleanVersion::test_complex_prefix PASSED      [ 11%]
+tests/test_parsers.py::TestCleanVersion::test_spaces PASSED              [ 14%]
+tests/test_parsers.py::TestParsePackageJson::test_parse_dependencies PASSED [ 16%]
+tests/test_parsers.py::TestParsePackageJson::test_parse_dev_dependencies PASSED [ 19%]
+tests/test_parsers.py::TestParsePackageJson::test_parse_both_sections PASSED [ 21%]
+tests/test_parsers.py::TestParsePackageJson::test_empty_dependencies PASSED [ 23%]
+tests/test_parsers.py::TestParsePackageJson::test_file_not_found PASSED  [ 26%]
+tests/test_parsers.py::TestParsePackageJson::test_invalid_json PASSED    [ 28%]
+tests/test_parsers.py::TestParsePackageJson::test_invalid_structure PASSED [ 30%]
+tests/test_parsers.py::TestParsePackageJson::test_non_dict_dependencies_ignored PASSED [ 33%]
+tests/test_scoring.py::TestScoreDaysSince::test_zero_days PASSED         [ 35%]
+tests/test_scoring.py::TestScoreDaysSince::test_max_days PASSED          [ 38%]
+tests/test_scoring.py::TestScoreDaysSince::test_beyond_max PASSED        [ 40%]
+tests/test_scoring.py::TestScoreDaysSince::test_half_max PASSED          [ 42%]
+tests/test_scoring.py::TestScoreDaysSince::test_none_days PASSED         [ 45%]
+tests/test_scoring.py::TestScoreDaysSince::test_negative_days PASSED     [ 47%]
+tests/test_scoring.py::TestScoreDaysSince::test_custom_max PASSED        [ 50%]
+tests/test_scoring.py::TestScoreIssueResponsiveness::test_all_closed PASSED [ 52%]
+tests/test_scoring.py::TestScoreIssueResponsiveness::test_none_closed PASSED [ 54%]
+tests/test_scoring.py::TestScoreIssueResponsiveness::test_half_closed PASSED [ 57%]
+tests/test_scoring.py::TestScoreIssueResponsiveness::test_no_issues PASSED [ 59%]
+tests/test_scoring.py::TestScoreActiveMaintainers::test_zero PASSED      [ 61%]
+tests/test_scoring.py::TestScoreActiveMaintainers::test_one PASSED       [ 64%]
+tests/test_scoring.py::TestScoreActiveMaintainers::test_two PASSED       [ 66%]
+tests/test_scoring.py::TestScoreActiveMaintainers::test_three PASSED     [ 69%]
+tests/test_scoring.py::TestScoreActiveMaintainers::test_four PASSED      [ 71%]
+tests/test_scoring.py::TestScoreActiveMaintainers::test_five_plus PASSED [ 73%]
+tests/test_scoring.py::TestScoreDeprecatedArchived::test_neither PASSED  [ 76%]
+tests/test_scoring.py::TestScoreDeprecatedArchived::test_deprecated_only PASSED [ 78%]
+tests/test_scoring.py::TestScoreDeprecatedArchived::test_archived_only PASSED [ 80%]
+tests/test_scoring.py::TestScoreDeprecatedArchived::test_both PASSED     [ 83%]
+tests/test_scoring.py::TestCalculateHealth::test_healthy_package PASSED  [ 85%]
+tests/test_scoring.py::TestCalculateHealth::test_at_risk_deprecated_package PASSED [ 88%]
+tests/test_scoring.py::TestCalculateHealth::test_unknown_when_no_data PASSED [ 90%]
+tests/test_scoring.py::TestCalculateHealth::test_watch_package PASSED    [ 92%]
+tests/test_scoring.py::TestCalculateHealth::test_score_clamped_0_to_100 PASSED [ 95%]
+tests/test_scoring.py::TestCalculateHealth::test_main_reason_for_stale_release PASSED [ 97%]
+tests/test_scoring.py::TestCalculateHealth::test_archived_reason_takes_priority PASSED [100%]
+
+============================= 42 passed in 0.23s ==============================
+```
+
+### Test Breakdown
+
+<details>
+<summary><strong>📄 Parser Tests — 14 tests</strong> (<code>tests/test_parsers.py</code>)</summary>
+
+| # | Test | What it verifies |
+|:--:|:---|:---|
+| 1 | `test_caret_prefix` | Strips `^` from `^1.2.3` |
+| 2 | `test_tilde_prefix` | Strips `~` from `~1.2.3` |
+| 3 | `test_gte_prefix` | Strips `>=` from `>=1.0.0` |
+| 4 | `test_no_prefix` | Leaves bare `1.0.0` unchanged |
+| 5 | `test_complex_prefix` | Strips combo `^>=` from `^>=2.0.0` |
+| 6 | `test_spaces` | Strips leading spaces |
+| 7 | `test_parse_dependencies` | Reads `dependencies` section correctly |
+| 8 | `test_parse_dev_dependencies` | Reads `devDependencies` section |
+| 9 | `test_parse_both_sections` | Merges both sections into one list |
+| 10 | `test_empty_dependencies` | Returns `[]` when no deps exist |
+| 11 | `test_file_not_found` | Raises `FileNotFoundError` |
+| 12 | `test_invalid_json` | Raises `JSONDecodeError` for bad JSON |
+| 13 | `test_invalid_structure` | Raises `ValueError` for non-object JSON |
+| 14 | `test_non_dict_dependencies_ignored` | Skips malformed dependency values |
+
+</details>
+
+<details>
+<summary><strong>🧮 Scoring Tests — 28 tests</strong> (<code>tests/test_scoring.py</code>)</summary>
+
+| # | Test | What it verifies |
+|:--:|:---|:---|
+| 1 | `test_zero_days` | 0 days since release → score 100 |
+| 2 | `test_max_days` | 730 days → score 0 |
+| 3 | `test_beyond_max` | 1000 days → still 0 |
+| 4 | `test_half_max` | 365 days → ~50 |
+| 5 | `test_none_days` | Unknown date → score 0 |
+| 6 | `test_negative_days` | Future date → score 100 |
+| 7 | `test_custom_max` | Custom ceiling works |
+| 8 | `test_all_closed` | 10 closed, 0 open → 100 |
+| 9 | `test_none_closed` | 0 closed, 10 open → 0 |
+| 10 | `test_half_closed` | 5/5 → 50 |
+| 11 | `test_no_issues` | No issues at all → neutral 50 |
+| 12 | `test_zero` | 0 maintainers → 0 |
+| 13 | `test_one` | 1 maintainer → 30 |
+| 14 | `test_two` | 2 maintainers → 60 |
+| 15 | `test_three` | 3 maintainers → 80 |
+| 16 | `test_four` | 4 maintainers → 80 |
+| 17 | `test_five_plus` | 5+ maintainers → 100 |
+| 18 | `test_neither` | Not deprecated, not archived → 100 |
+| 19 | `test_deprecated_only` | Deprecated → 0 |
+| 20 | `test_archived_only` | Archived → 0 |
+| 21 | `test_both` | Both flags → 0 |
+| 22 | `test_healthy_package` | Well-maintained pkg scores ≥ 70 |
+| 23 | `test_at_risk_deprecated_package` | Old deprecated pkg scores < 40 |
+| 24 | `test_unknown_when_no_data` | No metadata → "Unknown" label |
+| 25 | `test_watch_package` | Moderately stale → "Watch" (40–69) |
+| 26 | `test_score_clamped_0_to_100` | Score never exceeds bounds |
+| 27 | `test_main_reason_for_stale_release` | Identifies release staleness |
+| 28 | `test_archived_reason_takes_priority` | Archived flag overrides other reasons |
+
+</details>
+
+### Coverage Summary
 
 | Module | Tests | Status |
 |:---|:---:|:---:|
 | `parsers.py` | 14 | ✅ All passing |
 | `scoring.py` | 28 | ✅ All passing |
-| **Total** | **42** | ✅ |
+| **Total** | **42** | **✅** |
 
 <br>
 
